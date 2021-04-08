@@ -1,4 +1,4 @@
 # Plot Animation
-- Sine Waveave
+- Sine Wave
 
 - Multirotor Trajectory
