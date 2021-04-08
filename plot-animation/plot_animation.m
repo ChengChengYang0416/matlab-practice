@@ -7,7 +7,7 @@ x = sin(t);
 figure(1);
 
 % Initialize video
-myVideo = VideoWriter('myVideoFile');
+myVideo = VideoWriter('sine-wave');
 myVideo.FrameRate = 100;
 open(myVideo)
 
