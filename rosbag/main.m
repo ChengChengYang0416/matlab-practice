@@ -1,15 +1,18 @@
 % read experiment data from bag file and plot the trajectory
 close all;
 
+% if the bag file is available, use rosbag() to read it
+% bag_select = "2021-06-19-17-01-adaptive-tune.bag";
+% bag = rosbag(bag_select);
+
 % parameters for plotting
-bag_select = "2021-06-19-17-01-adaptive-tune.bag";
 length_of_t = 3811;
 states_null_x = 420;
 states_null_y = 420;
 states_null_z = 420;
 
-% read data from bag file
-bag = rosbag(bag_select);
+% if the bag file is not available, load bag data from mat file
+load('bag_mat.mat');
 
 % select subset messages filtered by the specific topic
 t_bag = select(bag, 'topic', 'rosout');
