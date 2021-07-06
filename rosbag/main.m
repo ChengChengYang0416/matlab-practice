@@ -1,61 +1,95 @@
-%% bag reading
+% read experiment data from bag file and plot the trajectory
 close all;
 
-% create BagSelection object, check the AvailableTopics
-bag = rosbag("33-51-91.bag");
+% parameters for plotting
+bag_select = "2021-06-19-17-01-adaptive-tune.bag";
+length_of_t = 3811;
+states_null_x = 420;
+states_null_y = 420;
+states_null_z = 420;
 
-%% simulation time
-sim_t = 50;
+% read data from bag file
+bag = rosbag(bag_select);
 
-% select subset messages filtered by the topic 'clock'
-clock_error = select(bag, 'topic', 'clock');
+% select subset messages filtered by the specific topic
+t_bag = select(bag, 'topic', 'rosout');
+x_bag = select(bag, 'topic', 'uav/x');
+y_bag = select(bag, 'topic', 'uav/y');
+z_bag = select(bag, 'topic', 'uav/z');
+xd_bag = select(bag, 'topic', 'uav/x_des');
+yd_bag = select(bag, 'topic', 'uav/y_des');
+zd_bag = select(bag, 'topic', 'uav/z_des');
 
-% read data with structures
-clock_error_msgStructs = readMessages(clock_error, 'DataFormat', 'struct');
+% read data from message list as structures
+t_msgStructs = readMessages(t_bag, 'DataFormat', 'struct');
+x_msgStructs = readMessages(x_bag, 'DataFormat', 'struct');
+y_msgStructs = readMessages(y_bag, 'DataFormat', 'struct');
+z_msgStructs = readMessages(z_bag, 'DataFormat', 'struct');
+xd_msgStructs = readMessages(xd_bag, 'DataFormat', 'struct');
+yd_msgStructs = readMessages(yd_bag, 'DataFormat', 'struct');
+zd_msgStructs = readMessages(zd_bag, 'DataFormat', 'struct');
 
-% return data in a cell array
-time_error = cellfun(@(m) double(m.Clock_.Sec), clock_error_msgStructs);
-total_time_error = time_error(end) - time_error(1);
-time_ratio_error = sim_t/total_time_error;
+% read data in a cell array, now we can use the array to plot the figure
+t = cellfun(@(m) double(m.Header.Stamp.Sec), t_msgStructs);
+t_nsec = cellfun(@(m) double(m.Header.Stamp.Nsec), t_msgStructs);
+x = cellfun(@(m) double(m.Data), x_msgStructs);
+y = cellfun(@(m) double(m.Data), y_msgStructs);
+z = cellfun(@(m) double(m.Data), z_msgStructs);
+xd = cellfun(@(m) double(m.Data), xd_msgStructs);
+yd = cellfun(@(m) double(m.Data), yd_msgStructs);
+zd = cellfun(@(m) double(m.Data), zd_msgStructs);
 
+% remove the useless data and adjust the time array
+t(length_of_t:end) = [];
+t_nsec(length_of_t:end) = [];
+t = t - t(1);
+t = t + t_nsec*10^(-9);
+x(1:states_null_x) = [];
+y(1:states_null_y) = [];
+z(1:states_null_z) = [];
+x(length_of_t:end) = [];
+y(length_of_t:end) = [];
+z(length_of_t:end) = [];
+xd(1:states_null_x) = [];
+yd(1:states_null_y) = [];
+zd(1:states_null_z) = [];
+xd(length_of_t:end) = [];
+yd(length_of_t:end) = [];
+zd(length_of_t:end) = [];
 
-%% reading error
-error = select(bag, 'topic', '/error');
-error_msgStructs = readMessages(error, 'DataFormat', 'struct');
+% plot x and x_d
+figure
+subplot(311)
+plot(t, x, 'b', 'Linewidth', 2)
+hold on
+plot(t, xd, 'r', 'Linewidth', 2)
+y_label = ylabel('$X$', 'Interpreter', 'latex', 'rotation', 0); grid on;
+set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.47]);
+ylim([-1.6 1.6])
+xlim([0, t(end)])
+legend('$X$', '$X_{d}$', 'Interpreter', 'latex')
+title('$Position$ $in$ $the$ $X$ $direction$ $(m)$', 'Interpreter', 'latex')
 
-% check MessageType
-error_msgStructs{1}
+% plot y and y_d
+subplot(312)
+plot(t, y, 'b', 'Linewidth', 2)
+hold on
+plot(t, yd, 'r', 'Linewidth', 2)
+y_label = ylabel('$Y$', 'Interpreter', 'latex', 'rotation', 0); grid on;
+set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.47]);
+ylim([-1.5 1.5])
+xlim([0, t(end)])
+legend('$Y$', '$Y_{d}$', 'Interpreter', 'latex')
+title('$Position$ $in$ $the$ $Y$ $direction$ $(m)$', 'Interpreter', 'latex')
 
-% return data in a cell array
-error_position_x = cellfun(@(m) double(m.Pose.Pose.Position.X), error_msgStructs);
-error_position_y = cellfun(@(m) double(m.Pose.Pose.Position.Y), error_msgStructs);
-error_position_z = cellfun(@(m) double(m.Pose.Pose.Position.Z), error_msgStructs);
-
-error_position_x = error_position_x(1:(int32((length(error_position_x)*time_ratio_error))));
-error_position_y = error_position_y(1:(int32((length(error_position_y)*time_ratio_error))));
-error_position_z = error_position_z(1:(int32((length(error_position_z)*time_ratio_error))));
-
-t_error = linspace(0, sim_t, length(error_position_x));
-
-%% plot
-figure(1)
-
-% error in x-direction
-subplot(3, 1, 1);
-plot(t_error, error_position_x, 'LineWidth', 1.5);
-y = ylabel('$e_{p_{x}}$', 'Interpreter', 'latex', 'rotation', 0); grid on;
-set(y, 'Units', 'Normalized', 'Position', [-0.1, 0.41], 'FontSize', 10);
-title('$Position$ $Error$ $(m)$', 'Interpreter', 'latex', 'FontSize', 10)
-
-% error in y-direction
-subplot(3, 1, 2);
-plot(t_error, error_position_y, 'LineWidth', 1.5);
-y = ylabel('$e_{p_{y}}$', 'Interpreter', 'latex', 'rotation', 0); grid on;
-set(y, 'Units', 'Normalized', 'Position', [-0.1, 0.41], 'FontSize', 10);
-
-% error in z-direction
-subplot(3, 1, 3);
-plot(t_error, error_position_z, 'LineWidth', 1.5);
-y = ylabel('$e_{p_{z}}$', 'Interpreter', 'latex', 'rotation', 0); grid on;
-set(y, 'Units', 'Normalized', 'Position', [-0.1, 0.41], 'FontSize', 10);
-xlabel('$Time(sec)$', 'Interpreter', 'latex');
+% plot z and z_d
+subplot(313)
+plot(t, z, 'b', 'Linewidth', 2)
+hold on
+plot(t, zd, 'r', 'Linewidth', 2)
+y_label = ylabel('$Z$', 'Interpreter', 'latex', 'rotation', 0); grid on;
+set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.47]);
+ylim([0.5 3.0])
+xlim([0, t(end)])
+legend('$Z$', '$Z_{d}$', 'Interpreter', 'latex')
+title('$Position$ $in$ $the$ $Z$ $direction$ $(m)$', 'Interpreter', 'latex')
