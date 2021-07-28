@@ -57,39 +57,39 @@ xd(length_of_t:end) = [];
 yd(length_of_t:end) = [];
 zd(length_of_t:end) = [];
 
-% plot x and x_d
-figure
-subplot(311)
+% position
+figure;
+set(subplot(311), 'Position', [0.15, 0.7, 0.78, 0.22])
 plot(t, x, 'b', 'Linewidth', 2)
 hold on
 plot(t, xd, 'r', 'Linewidth', 2)
-y_label = ylabel('$X$', 'Interpreter', 'latex', 'rotation', 0); grid on;
-set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.47]);
+grid on;
 ylim([-1.6 1.6])
 xlim([0, t(end)])
+y_label = ylabel('$X$ $\mathrm{\left(m\right)}$', 'Interpreter', 'latex', 'rotation', 0);
+set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.43]);
 legend('$X$', '$X_{d}$', 'Interpreter', 'latex')
-title('$Position$ $in$ $the$ $X$ $direction$ $(m)$', 'Interpreter', 'latex')
+title('Position', 'Fontsize', 11)
 
-% plot y and y_d
-subplot(312)
+set(subplot(312), 'Position', [0.15, 0.4, 0.78, 0.22])
 plot(t, y, 'b', 'Linewidth', 2)
 hold on
 plot(t, yd, 'r', 'Linewidth', 2)
-y_label = ylabel('$Y$', 'Interpreter', 'latex', 'rotation', 0); grid on;
-set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.47]);
-ylim([-1.5 1.5])
+grid on;
+ylim([-1.0 1.0])
 xlim([0, t(end)])
+y_label = ylabel('$Y$ $\mathrm{\left(m\right)}$', 'Interpreter', 'latex', 'rotation', 0);
+set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.43]);
 legend('$Y$', '$Y_{d}$', 'Interpreter', 'latex')
-title('$Position$ $in$ $the$ $Y$ $direction$ $(m)$', 'Interpreter', 'latex')
 
-% plot z and z_d
-subplot(313)
+set(subplot(313), 'Position', [0.15, 0.1, 0.78, 0.22])
 plot(t, z, 'b', 'Linewidth', 2)
 hold on
 plot(t, zd, 'r', 'Linewidth', 2)
-y_label = ylabel('$Z$', 'Interpreter', 'latex', 'rotation', 0); grid on;
-set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.47]);
+grid on;
 ylim([0.0 1.5])
 xlim([0, t(end)])
+y_label = ylabel('$Z$ $\mathrm{\left(m\right)}$', 'Interpreter', 'latex', 'rotation', 0);
+set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.43]);
+xlabel('Time (sec)', 'FontSize', 11);
 legend('$Z$', '$Z_{d}$', 'Interpreter', 'latex')
-title('$Position$ $in$ $the$ $Z$ $direction$ $(m)$', 'Interpreter', 'latex')
