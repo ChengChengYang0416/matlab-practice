@@ -2,17 +2,14 @@
 close all;
 
 % if the bag file is available, use rosbag() to read it
-% bag_select = "2021-06-19-17-01-adaptive-tune.bag";
-% bag = rosbag(bag_select);
+bag_select = "2021-07-21-12-04-53.bag";
+bag = rosbag(bag_select);
 
 % parameters for plotting
-length_of_t = 3811;
-states_null_x = 420;
-states_null_y = 420;
-states_null_z = 420;
-
-% if the bag file is not available, load bag data from mat file
-load('bag_mat.mat');
+length_of_t = 3911;
+states_null_x = 730;
+states_null_y = 730;
+states_null_z = 730;
 
 % select subset messages filtered by the specific topic
 t_bag = select(bag, 'topic', 'rosout');
@@ -92,7 +89,7 @@ hold on
 plot(t, zd, 'r', 'Linewidth', 2)
 y_label = ylabel('$Z$', 'Interpreter', 'latex', 'rotation', 0); grid on;
 set(y_label, 'Units', 'Normalized', 'Position', [-0.11, 0.47]);
-ylim([0.5 3.0])
+ylim([0.0 1.5])
 xlim([0, t(end)])
 legend('$Z$', '$Z_{d}$', 'Interpreter', 'latex')
 title('$Position$ $in$ $the$ $Z$ $direction$ $(m)$', 'Interpreter', 'latex')
